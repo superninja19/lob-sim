@@ -1,0 +1,19 @@
+#pragma once
+#include <cstdint>
+
+namespace lob {
+
+	enum class Side : std::uint8_t {
+		Buy,
+		Sell
+	};
+
+
+	struct LimitOrder {
+		std::uint64_t orderId;
+		std::int64_t price;
+		std::int64_t originalQuantity;
+		std::int64_t remainingQuantity;
+		Side side;
+	};
+} // namespace lob

@@ -10,7 +10,8 @@ A limit order book simulator in C++20.
 
 ## Design decisions
 
-_(recorded as they're made)_
+1. No timestamp on Order. Priority is resolved by exchange-assigned sequence ID, which is monotonic by construction and avoids clock-resolution ties. Wall-clock time is not meaningful in a deterministic simulation; simulated time will be introduced with the event generator (v0.5).
+2. No ticker name/symbol since the simulator is for a single instrument as is, no need to replicate the symbol on every copy of the order. It significantly increasing the memory size of the struct if using std::string as well, depending on memory layout of cache could increase number of cache misses.
 
 ## Roadmap
 
