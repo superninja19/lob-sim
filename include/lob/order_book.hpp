@@ -21,6 +21,7 @@ public:
     OrderId Submit(OrderRequest orderRequest);
 
 private:
+    OrderId nextOrderId = 1;
     std::map<Price,Level> askSideMap_;
     std::map<Price,Level,std::greater<Price>> bidSideMap_;
 };
