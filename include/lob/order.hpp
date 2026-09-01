@@ -4,8 +4,8 @@
 namespace lob {
 
 enum class Side : std::uint8_t {
-    Ask,
-    Bid
+    Buy,
+    Sell
 };
 
 
