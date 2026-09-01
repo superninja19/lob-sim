@@ -17,6 +17,7 @@ public:
     void addOrder(LimitOrder order);
     std::optional<Price> bestBid();
     std::optional<Price> bestAsk();
+    OrderId getAndIncrementOrderId();
     Quantity getQuantity(Price price);
     OrderId Submit(OrderRequest orderRequest);
 
