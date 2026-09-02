@@ -9,10 +9,6 @@
 
 namespace lob {
 
-using Price = std::int64_t;
-using OrderId = std::uint64_t;
-using Quantity = std::int64_t;
-
 struct Level{
     std::list<LimitOrder> orders;
     Quantity totalQuantity;
@@ -23,8 +19,9 @@ public:
     void addOrder(LimitOrder order);
     std::optional<Price> bestBid() const;
     std::optional<Price> bestAsk() const;
-    Quantity getQuantity(Price price) const;
-    OrderId submit(OrderRequest orderRequest);
+    Quantity bidQuantityAt(Price price) const;
+    Quantity askQuantityAt(Price price) const;
+    OrderId submit(const OrderRequest& orderRequest);
 
 private:
     OrderId allocateOrderId();

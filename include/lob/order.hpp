@@ -3,6 +3,10 @@
 
 namespace lob {
 
+using Price = std::int64_t;
+using OrderId = std::uint64_t;
+using Quantity = std::int64_t;
+
 enum class Side : std::uint8_t {
     Buy,
     Sell
@@ -10,16 +14,16 @@ enum class Side : std::uint8_t {
 
 
 struct LimitOrder {
-    std::uint64_t orderId;
-    std::int64_t price;
-    std::int64_t originalQuantity;
-    std::int64_t remainingQuantity;
+    OrderId orderId;
+    Price price;
+    Quantity originalQuantity;
+    Quantity remainingQuantity;
     Side side;
 };
 
 struct OrderRequest {
-    std::int64_t price;
-    std::int64_t quantity;
+    Price price;
+    Quantity quantity;
     Side side;
 };
 
