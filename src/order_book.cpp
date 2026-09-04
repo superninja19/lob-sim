@@ -31,15 +31,15 @@ namespace lob {
 
     // todo: write helper function for shared quantity logic
     Quantity OrderBook::bidQuantityAt(Price price) const{
-        if (bidSideMap_.contains(price)){
-            return bidSideMap_[price].totalQuantity;
+        if (auto search = bidSideMap_.find(price); search != bidSideMap_.end()){
+            return search->second.totalQuantity;
         }
         return 0;
     }
 
     Quantity OrderBook::askQuantityAt(Price price) const{
-        if (askSideMap_.contains(price)){
-            return askSideMap_[price].totalQuantity;
+        if (auto search = askSideMap_.find(price); search != askSideMap_.end()){
+            return search->second.totalQuantity;
         }
         return 0;
 

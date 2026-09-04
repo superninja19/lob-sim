@@ -4,11 +4,20 @@
 
 int main(){
 
-    lob::LimitOrder orderOne = {1, 50, 100, 100, lob::Side::Buy};
-    lob::LimitOrder orderTwo = {2, 52, 200, 100, lob::Side::Sell};
-    lob::LimitOrder orderThree = {3, 51, 10, 5, lob::Side::Buy};
+    lob::OrderRequest orderOne = {50, 100, lob::Side::Buy};
+    lob::OrderRequest orderTwo = {52, 200, lob::Side::Sell};
+    lob::OrderRequest orderThree = {51, 10, lob::Side::Buy};
 
-    std::cout << "We have orders: " << orderOne.orderId << ", " << orderTwo.orderId << ", " << orderThree.orderId;
+    lob::OrderBook orderBook;
+    orderBook.submit(orderOne);
+    orderBook.submit(orderTwo);
+    orderBook.submit(orderThree);
+
+    std::cout << "Best bid price: " << orderBook.bestBid().value_or(0) << "\n";
+    std::cout << "Best ask price: " << orderBook.bestAsk().value_or(0) << "\n";
+
+    std::cout << "Quantity for bid price 51 is: " << orderBook.bidQuantityAt(51) << "\n";
+    std::cout << "Quantity for ask price 52 is: " << orderBook.askQuantityAt(52) << "\n";
 
     return 0;
 }
