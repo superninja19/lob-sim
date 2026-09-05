@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 
 #include <lob/order_book.hpp>
 

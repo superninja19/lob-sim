@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <list>
@@ -11,22 +12,29 @@ namespace lob {
 
 class Level{
 public:
-    std::list<LimitOrder> orders;
-
     Quantity getQuantity() const{
         return totalQuantity;
     }
 
     void addQuantity(Quantity quantity){
+        assert(quantity > 0 && "quantity is not greater than 0");
         totalQuantity += quantity;
     }
 
     void subtractQuantity(Quantity quantity){
-        // todo: should we throw here if quantity is greater than totalQuantity?
+        assert(quantity <= totalQuantity && "quantity is not less than the total quantity");
         totalQuantity -= quantity;
     }
 
+    void addOrder(LimitOrder order){
+        assert(order.remainingQuantity > 0 && "remaining quantity is not greater than 0");
+        auto quantity = order.remainingQuantity;
+        orders.push_back(std::move(order));
+        addQuantity(quantity);
+    }
+
 private:
+    std::list<LimitOrder> orders;
     Quantity totalQuantity = 0;
 };
 
@@ -40,7 +48,6 @@ public:
 
 private:
     void addOrder(LimitOrder order);
-    void insertIntoLevel(Level& level, LimitOrder order);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;
     std::map<Price,Level> askSideMap_;

@@ -14,8 +14,8 @@ A limit order book simulator in C++20.
 
 ## Roadmap
 
-- [*] v0.1 — Order representation
-- [*] v0.2 — Order book structure
+- [x] v0.1 — Order representation
+- [x] v0.2 — Order book structure
 - [ ] v0.3 — Matching engine
 - [ ] v0.4 — Cancels & modifications
 - [ ] v0.5 — Random order flow
