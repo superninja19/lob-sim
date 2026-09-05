@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include <lob/order_book.hpp>
 
@@ -13,8 +14,16 @@ int main(){
     orderBook.submit(orderTwo);
     orderBook.submit(orderThree);
 
-    std::cout << "Best bid price: " << orderBook.bestBid().value_or(0) << "\n";
-    std::cout << "Best ask price: " << orderBook.bestAsk().value_or(0) << "\n";
+    auto bestBid = orderBook.bestBid();
+    auto bestAsk = orderBook.bestAsk();
+
+    if (bestBid.has_value()){
+        std::cout << "Best bid price: " << bestBid.value() << "\n";
+    }
+
+    if (bestAsk.has_value()){
+        std::cout << "Best ask price: " << bestAsk.value() << "\n";
+    }
 
     std::cout << "Quantity for bid price 51 is: " << orderBook.bidQuantityAt(51) << "\n";
     std::cout << "Quantity for ask price 52 is: " << orderBook.askQuantityAt(52) << "\n";

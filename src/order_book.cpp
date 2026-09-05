@@ -6,11 +6,11 @@ namespace lob {
 void OrderBook::addOrder(LimitOrder order){
     if (order.side == Side::Buy){
         auto& level = bidSideMap_[order.price];
-        insertIntoLevel(order, level);
+        insertIntoLevel(level, order);
     }
     else if (order.side == Side::Sell){
         auto& level = askSideMap_[order.price];
-        insertIntoLevel(order, level);
+        insertIntoLevel(level, order);
     }
 }
 
@@ -63,7 +63,7 @@ OrderId OrderBook::allocateOrderId(){
     return ret;
 }
 
-void OrderBook::insertIntoLevel(LimitOrder order, Level& level){
+void OrderBook::insertIntoLevel(Level& level, LimitOrder order){
     auto quantity = order.remainingQuantity; 
     level.orders.push_back(std::move(order));
     level.addQuantity(quantity);

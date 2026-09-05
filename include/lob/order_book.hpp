@@ -9,7 +9,8 @@
 
 namespace lob {
 
-struct Level{
+class Level{
+public:
     std::list<LimitOrder> orders;
 
     Quantity getQuantity() const{
@@ -39,7 +40,7 @@ public:
 
 private:
     void addOrder(LimitOrder order);
-    void insertIntoLevel(LimitOrder order, Level& level);
+    void insertIntoLevel(Level& level, LimitOrder order);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;
     std::map<Price,Level> askSideMap_;
