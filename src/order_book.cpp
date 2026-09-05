@@ -3,66 +3,70 @@
 
 namespace lob {
 
-    // todo: write helper for shared code below
-    void OrderBook::addOrder(LimitOrder order){
-        if (order.side == Side::Buy){
-            bidSideMap_[order.price].orders.push_back(order); // Couldn't orders technically be pushed back out of order?
-            bidSideMap_[order.price].totalQuantity += order.remainingQuantity;
-        }
-        else if (order.side == Side::Sell){
-            askSideMap_[order.price].orders.push_back(order);
-            askSideMap_[order.price].totalQuantity += order.remainingQuantity;
-        }
+void OrderBook::addOrder(LimitOrder order){
+    if (order.side == Side::Buy){
+        auto& level = bidSideMap_[order.price];
+        insertIntoLevel(order, level);
     }
-
-    std::optional<Price> OrderBook::bestBid() const{
-        if (bidSideMap_.empty()){
-            return std::nullopt;
-        }
-        return bidSideMap_.begin()->first;
+    else if (order.side == Side::Sell){
+        auto& level = askSideMap_[order.price];
+        insertIntoLevel(order, level);
     }
+}
 
-    std::optional<Price> OrderBook::bestAsk() const{
-        if (askSideMap_.empty()){
-            return std::nullopt;
-        }
-        return askSideMap_.begin()->first;
+std::optional<Price> OrderBook::bestBid() const{
+    if (bidSideMap_.empty()){
+        return std::nullopt;
     }
+    return bidSideMap_.begin()->first;
+}
 
-    // todo: write helper function for shared quantity logic
-    Quantity OrderBook::bidQuantityAt(Price price) const{
-        if (auto search = bidSideMap_.find(price); search != bidSideMap_.end()){
-            return search->second.totalQuantity;
-        }
-        return 0;
+std::optional<Price> OrderBook::bestAsk() const{
+    if (askSideMap_.empty()){
+        return std::nullopt;
     }
+    return askSideMap_.begin()->first;
+}
 
-    Quantity OrderBook::askQuantityAt(Price price) const{
-        if (auto search = askSideMap_.find(price); search != askSideMap_.end()){
-            return search->second.totalQuantity;
-        }
-        return 0;
-
+Quantity OrderBook::bidQuantityAt(Price price) const{
+    if (auto search = bidSideMap_.find(price); search != bidSideMap_.end()){
+        return search->second.getQuantity();
     }
+    return 0;
+}
 
-    // Does nothing but add new orders currently
-    OrderId OrderBook::submit(const OrderRequest& orderRequest){
-        LimitOrder newOrder = {
-            .orderId = allocateOrderId(),
-            .price = orderRequest.price,
-            .originalQuantity = orderRequest.quantity,
-            .remainingQuantity = orderRequest.quantity,
-            .side = orderRequest.side
-        };
-
-        addOrder(newOrder);
-        return newOrder.orderId;
+Quantity OrderBook::askQuantityAt(Price price) const{
+    if (auto search = askSideMap_.find(price); search != askSideMap_.end()){
+        return search->second.getQuantity();
     }
+    return 0;
 
-    OrderId OrderBook::allocateOrderId(){
-        auto ret = nextOrderId_;
-        nextOrderId_++;
-        return ret;
-    }
+}
+
+// Does nothing but add new orders currently
+OrderId OrderBook::submit(const OrderRequest& orderRequest){
+    LimitOrder newOrder = {
+        .orderId = allocateOrderId(),
+        .price = orderRequest.price,
+        .originalQuantity = orderRequest.quantity,
+        .remainingQuantity = orderRequest.quantity,
+        .side = orderRequest.side
+    };
+
+    addOrder(newOrder);
+    return newOrder.orderId;
+}
+
+OrderId OrderBook::allocateOrderId(){
+    auto ret = nextOrderId_;
+    nextOrderId_++;
+    return ret;
+}
+
+void OrderBook::insertIntoLevel(LimitOrder order, Level& level){
+    auto quantity = order.remainingQuantity; 
+    level.orders.push_back(std::move(order));
+    level.addQuantity(quantity);
+}
 
 } // namespace lob

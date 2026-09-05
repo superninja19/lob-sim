@@ -11,12 +11,26 @@ namespace lob {
 
 struct Level{
     std::list<LimitOrder> orders;
-    Quantity totalQuantity;
+
+    Quantity getQuantity() const{
+        return totalQuantity;
+    }
+
+    void addQuantity(Quantity quantity){
+        totalQuantity += quantity;
+    }
+
+    void subtractQuantity(Quantity quantity){
+        // todo: should we throw here if quantity is greater than totalQuantity?
+        totalQuantity -= quantity;
+    }
+
+private:
+    Quantity totalQuantity = 0;
 };
 
 class OrderBook{
 public:
-    void addOrder(LimitOrder order);
     std::optional<Price> bestBid() const;
     std::optional<Price> bestAsk() const;
     Quantity bidQuantityAt(Price price) const;
@@ -24,6 +38,8 @@ public:
     OrderId submit(const OrderRequest& orderRequest);
 
 private:
+    void addOrder(LimitOrder order);
+    void insertIntoLevel(LimitOrder order, Level& level);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;
     std::map<Price,Level> askSideMap_;
