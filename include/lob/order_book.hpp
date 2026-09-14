@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include <optional>
+#include <utility>
 
 #include <lob/order.hpp>
 
@@ -16,6 +17,14 @@ public:
         return totalQuantity;
     }
 
+    void addOrder(LimitOrder order){
+        assert(order.remainingQuantity > 0 && "remaining quantity is not greater than 0");
+        auto quantity = order.remainingQuantity;
+        orders.push_back(std::move(order));
+        addQuantity(quantity);
+    }
+
+private:
     void addQuantity(Quantity quantity){
         assert(quantity > 0 && "quantity is not greater than 0");
         totalQuantity += quantity;
@@ -26,14 +35,6 @@ public:
         totalQuantity -= quantity;
     }
 
-    void addOrder(LimitOrder order){
-        assert(order.remainingQuantity > 0 && "remaining quantity is not greater than 0");
-        auto quantity = order.remainingQuantity;
-        orders.push_back(std::move(order));
-        addQuantity(quantity);
-    }
-
-private:
     std::list<LimitOrder> orders;
     Quantity totalQuantity = 0;
 };

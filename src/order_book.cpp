@@ -6,11 +6,11 @@ namespace lob {
 void OrderBook::addOrder(LimitOrder order){
     if (order.side == Side::Buy){
         auto& level = bidSideMap_[order.price];
-        level.addOrder(order);
+        level.addOrder(std::move(order));
     }
     else if (order.side == Side::Sell){
         auto& level = askSideMap_[order.price];
-        level.addOrder(order);
+        level.addOrder(std::move(order));
     }
 }
 
