@@ -8,6 +8,7 @@
 #include <utility>
 
 #include <lob/order.hpp>
+#include <lob/trade.hpp>
 
 namespace lob {
 
