@@ -15,29 +15,29 @@ namespace lob {
 class Level{
 public:
     Quantity getQuantity() const{
-        return totalQuantity;
+        return totalQuantity_;
     }
 
     void addOrder(LimitOrder order){
         assert(order.remainingQuantity > 0 && "remaining quantity is not greater than 0");
         auto quantity = order.remainingQuantity;
-        orders.push_back(std::move(order));
+        orders_.push_back(std::move(order));
         addQuantity(quantity);
     }
 
 private:
     void addQuantity(Quantity quantity){
         assert(quantity > 0 && "quantity is not greater than 0");
-        totalQuantity += quantity;
+        totalQuantity_ += quantity;
     }
 
     void subtractQuantity(Quantity quantity){
-        assert(quantity <= totalQuantity && "quantity is not less than the total quantity");
-        totalQuantity -= quantity;
+        assert(quantity <= totalQuantity_ && "quantity is not less than the total quantity");
+        totalQuantity_ -= quantity;
     }
 
-    std::list<LimitOrder> orders;
-    Quantity totalQuantity = 0;
+    std::list<LimitOrder> orders_;
+    Quantity totalQuantity_ = 0;
 };
 
 class OrderBook{
