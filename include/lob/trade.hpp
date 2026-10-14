@@ -1,5 +1,4 @@
 #pragma once
-#include <cassert>
 #include <cstdint>
 #include <vector>
 
@@ -17,20 +16,20 @@ enum class ExecutionStatus : std::uint8_t {
 using TradeId = std::uint64_t;
 
 struct Trade {
-    TradeId tradeId;
-    Price price;
-    Quantity quantity;
-    OrderId restingId;
-    OrderId aggressorId;
-    Side aggressorSide;
+    TradeId tradeId = 0;
+    Price price = 0;
+    Quantity quantity = 0;
+    OrderId restingId = 0;
+    OrderId aggressorId = 0;
+    Side aggressorSide; // todo: what should the default value here be, if any?
 };
 
 struct ExecutionResult {
-    OrderId orderId_;
-    Quantity quantityFilled_ = 0;
-    Quantity quantityRemaining_ = 0;
-    ExecutionStatus status_ = ExecutionStatus::Rejected;
-    std::vector<Trade> trades_;
+    OrderId orderId = 0;
+    Quantity quantityFilled = 0;
+    Quantity quantityRemaining = 0;
+    ExecutionStatus status = ExecutionStatus::Rejected;
+    std::vector<Trade> trades;
 };
 
 } // namespace lob
