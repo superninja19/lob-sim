@@ -6,14 +6,14 @@
 
 namespace lob {
 
+using TradeId = std::uint64_t;
+
 enum class ExecutionStatus : std::uint8_t {
     Rejected,
     Resting,
     PartiallyFilled,
     Filled
 };
-
-using TradeId = std::uint64_t;
 
 struct Trade {
     TradeId tradeId = 0;
@@ -30,6 +30,12 @@ struct ExecutionResult {
     Quantity quantityRemaining = 0;
     ExecutionStatus status = ExecutionStatus::Rejected;
     std::vector<Trade> trades;
+};
+
+struct Fill {
+    OrderId restingOrderId = 0;
+    Price price = 0;
+    Quantity fillQuantity = 0;
 };
 
 } // namespace lob

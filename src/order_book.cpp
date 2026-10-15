@@ -3,6 +3,31 @@
 
 namespace lob {
 
+Fill Level::fillFront(Quantity maxQuantity){
+    assert(maxQuantity > 0 && "max quantity is not greater than 0");
+    assert(isEmpty() && "level is empty");
+
+    auto order = orders_.front();
+    auto fill = std::min(order.remainingQuantity, maxQuantity);
+    order.remainingQuantity -= fill;
+    subtractQuantity(fill);
+
+    if (order.remainingQuantity == 0){
+        orders_.pop_front();
+    }
+    else{
+        orders_.front().remainingQuantity -= fill;
+    }
+
+    Fill ret = {
+        .restingOrderId = order.orderId,
+        .price = order.price,
+        .fillQuantity = fill
+    };
+
+    return ret;
+}
+
 void OrderBook::addOrder(LimitOrder order){
     if (order.side == Side::Buy){
         auto& level = bidSideMap_[order.price];
