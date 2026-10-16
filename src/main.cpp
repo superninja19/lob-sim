@@ -27,6 +27,15 @@ int main(){
     std::cout << "Quantity for bid price 51 is: " << orderBook.bidQuantityAt(51) << "\n";
     std::cout << "Quantity for ask price 52 is: " << orderBook.askQuantityAt(52) << "\n";
 
+    // Level testing
+    lob::LimitOrder testOrder = {10, 30, 100, 100, lob::Side::Buy};
+    lob::Level testLevel;
+    testLevel.addOrder(testOrder);
+    std::cout << "Total Quantity in Level: " << testLevel.getQuantity() << "\n";
+
+    auto fill = testLevel.fillFront(50);
+    std::cout << "Fill restingOrderId, price, quantity: " << fill.restingOrderId << ", " << fill.price << ", " << fill.quantity << "\n";
+
     return 0;
 }
 

@@ -1,16 +1,24 @@
+#include <algorithm>
+
 #include <lob/order.hpp>
 #include <lob/order_book.hpp>
 
 namespace lob {
 
 Fill Level::fillFront(Quantity maxQuantity){
-    assert(maxQuantity > 0 && "max quantity is not greater than 0");
-    assert(isEmpty() && "level is empty");
+    assert(maxQuantity > 0 && "max quantity must be greater than 0");
+    assert(!isEmpty() && "level can't be empty");
 
-    auto order = orders_.front();
+    auto& order = orders_.front();
     auto fill = std::min(order.remainingQuantity, maxQuantity);
     order.remainingQuantity -= fill;
     subtractQuantity(fill);
+
+    Fill ret = {
+        .restingOrderId = order.orderId,
+        .price = order.price,
+        .quantity = fill
+    };
 
     if (order.remainingQuantity == 0){
         orders_.pop_front();
@@ -19,23 +27,25 @@ Fill Level::fillFront(Quantity maxQuantity){
         orders_.front().remainingQuantity -= fill;
     }
 
-    Fill ret = {
-        .restingOrderId = order.orderId,
-        .price = order.price,
-        .fillQuantity = fill
-    };
-
     return ret;
 }
 
 void OrderBook::addOrder(LimitOrder order){
-    if (order.side == Side::Buy){
-        auto& level = bidSideMap_[order.price];
-        level.addOrder(std::move(order));
-    }
-    else if (order.side == Side::Sell){
-        auto& level = askSideMap_[order.price];
-        level.addOrder(std::move(order));
+    auto& level = bidSideMap_[order.price];
+
+    switch (order.side)
+    {
+        case Side::Buy:
+            level.addOrder(std::move(order));
+            break;
+
+        case Side::Sell:
+            level = askSideMap_[order.price];
+            level.addOrder(std::move(order));
+            break;
+
+        default:
+            break;
     }
 }
 

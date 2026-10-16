@@ -1,5 +1,4 @@
 #pragma once
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <functional>
@@ -13,6 +12,12 @@
 
 namespace lob {
 
+struct Fill {
+    OrderId restingOrderId = 0;
+    Price price = 0;
+    Quantity quantity = 0;
+};
+
 class Level{
 public:
     Quantity getQuantity() const {
@@ -22,7 +27,7 @@ public:
     bool isEmpty() const { return orders_.empty(); }
 
     void addOrder(LimitOrder order){
-        assert(order.remainingQuantity > 0 && "remaining quantity is not greater than 0");
+        assert(order.remainingQuantity > 0 && "remaining quantity must be greater than 0");
         auto quantity = order.remainingQuantity;
         orders_.push_back(std::move(order));
         addQuantity(quantity);
@@ -32,12 +37,12 @@ public:
 
 private:
     void addQuantity(Quantity quantity){
-        assert(quantity > 0 && "quantity is not greater than 0");
+        assert(quantity > 0 && "quantity must be greater than 0");
         totalQuantity_ += quantity;
     }
 
     void subtractQuantity(Quantity quantity){
-        assert(quantity <= totalQuantity_ && "quantity is not less than the total quantity");
+        assert(quantity <= totalQuantity_ && "quantity must be less than or equal to total quantity");
         totalQuantity_ -= quantity;
     }
 

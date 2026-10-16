@@ -21,7 +21,7 @@ struct Trade {
     Quantity quantity = 0;
     OrderId restingId = 0;
     OrderId aggressorId = 0;
-    Side aggressorSide; // todo: what should the default value here be, if any?
+    Side aggressorSide;
 };
 
 struct ExecutionResult {
@@ -30,12 +30,6 @@ struct ExecutionResult {
     Quantity quantityRemaining = 0;
     ExecutionStatus status = ExecutionStatus::Rejected;
     std::vector<Trade> trades;
-};
-
-struct Fill {
-    OrderId restingOrderId = 0;
-    Price price = 0;
-    Quantity fillQuantity = 0;
 };
 
 } // namespace lob
