@@ -23,29 +23,31 @@ Fill Level::fillFront(Quantity maxQuantity){
     if (order.remainingQuantity == 0){
         orders_.pop_front();
     }
-    else{
-        orders_.front().remainingQuantity -= fill;
-    }
 
     return ret;
 }
 
 void OrderBook::addOrder(LimitOrder order){
-    auto& level = bidSideMap_[order.price];
-
     switch (order.side)
     {
         case Side::Buy:
-            level.addOrder(std::move(order));
+        {
+            auto& bidLevel = bidSideMap_[order.price];
+            bidLevel.addOrder(std::move(order));
             break;
+        }
 
         case Side::Sell:
-            level = askSideMap_[order.price];
-            level.addOrder(std::move(order));
+        {
+            auto& askLevel = askSideMap_[order.price];
+            askLevel.addOrder(std::move(order));
             break;
+        }
 
         default:
+        {
             break;
+        }
     }
 }
 
