@@ -107,14 +107,7 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
             auto frontLevelItr = askSideMap_.begin();
             if (frontLevelItr == askSideMap_.end() || frontLevelItr->first > newOrder.price){
                 addOrder(newOrder);
-
-                if (executionResult.quantityFilled == 0){
-                    executionResult.status = ExecutionStatus::Resting;
-                }
-                else{
-                    executionResult.status = ExecutionStatus::PartiallyFilled;
-                }
-                return executionResult;
+                break;
             }
 
             auto fill = frontLevelItr->second.fillFront(newOrder.remainingQuantity);
@@ -144,14 +137,7 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
             auto frontLevelItr = bidSideMap_.begin();
             if (frontLevelItr == bidSideMap_.end() || frontLevelItr->first < newOrder.price){
                 addOrder(newOrder);
-
-                if (executionResult.quantityFilled == 0){
-                    executionResult.status = ExecutionStatus::Resting;
-                }
-                else{
-                    executionResult.status = ExecutionStatus::PartiallyFilled;
-                }
-                return executionResult;
+                break;
             }
 
             auto fill = frontLevelItr->second.fillFront(newOrder.remainingQuantity);
@@ -177,7 +163,16 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
         } while (newOrder.remainingQuantity > 0);
     }
 
-    executionResult.status = ExecutionStatus::Filled;
+    if (executionResult.quantityFilled == 0){
+        executionResult.status = ExecutionStatus::Resting;
+    }
+    else if (executionResult.quantityRemaining > 0){
+        executionResult.status = ExecutionStatus::PartiallyFilled;
+    }
+    else{
+        executionResult.status = ExecutionStatus::Filled;
+    }
+
     return executionResult;
 }
 
