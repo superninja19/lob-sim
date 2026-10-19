@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include <lob/order.hpp>
 #include <lob/trade.hpp>
@@ -52,7 +53,7 @@ private:
 
 class OrderBook{
 public:
-    void addTrade(Trade trade);
+    const std::vector<Trade>& getTrades() const;
     std::optional<Price> bestBid() const;
     std::optional<Price> bestAsk() const;
     Quantity bidQuantityAt(Price price) const;
@@ -60,7 +61,8 @@ public:
     ExecutionResult submit(const OrderRequest& orderRequest);
 
 private:
-    std::list<Trade> trades_;
+    void addTrade(Trade trade);
+    std::vector<Trade> trades_;
     void addOrder(LimitOrder order);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;

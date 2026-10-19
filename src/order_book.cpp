@@ -52,6 +52,10 @@ void OrderBook::addTrade(Trade trade){
     trades_.push_back(trade);
 }
 
+const std::vector<Trade>& OrderBook::getTrades() const{
+    return trades_;
+}
+
 std::optional<Price> OrderBook::bestBid() const{
     if (bidSideMap_.empty()){
         return std::nullopt;
@@ -93,6 +97,10 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
     ExecutionResult executionResult;
     executionResult.orderId = newOrder.orderId;
     executionResult.quantityRemaining = newOrder.remainingQuantity;
+
+    if (executionResult.quantityRemaining < 1 || newOrder.price <= 0){
+        return executionResult;
+    }
 
     if (newOrder.side == Side::Buy){
         do {
