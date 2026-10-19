@@ -56,12 +56,14 @@ public:
     std::optional<Price> bestAsk() const;
     Quantity bidQuantityAt(Price price) const;
     Quantity askQuantityAt(Price price) const;
-    OrderId submit(const OrderRequest& orderRequest);
+    ExecutionResult submit(const OrderRequest& orderRequest);
 
 private:
     void addOrder(LimitOrder order);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;
+    TradeId allocateTradeId();
+    TradeId nextTradeId_ = 1;
     std::map<Price,Level> askSideMap_;
     std::map<Price,Level,std::greater<Price>> bidSideMap_;
 };

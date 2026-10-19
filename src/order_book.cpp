@@ -43,11 +43,6 @@ void OrderBook::addOrder(LimitOrder order){
             askLevel.addOrder(std::move(order));
             break;
         }
-
-        default:
-        {
-            break;
-        }
     }
 }
 
@@ -81,7 +76,7 @@ Quantity OrderBook::askQuantityAt(Price price) const{
 }
 
 // Does nothing but add new orders currently
-OrderId OrderBook::submit(const OrderRequest& orderRequest){
+ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
     LimitOrder newOrder = {
         .orderId = allocateOrderId(),
         .price = orderRequest.price,
@@ -90,13 +85,107 @@ OrderId OrderBook::submit(const OrderRequest& orderRequest){
         .side = orderRequest.side
     };
 
-    addOrder(newOrder);
-    return newOrder.orderId;
+    ExecutionResult executionResult;
+    executionResult.orderId = newOrder.orderId;
+    executionResult.quantityRemaining = newOrder.remainingQuantity;
+
+    if (newOrder.side == Side::Buy){
+        do {
+            auto frontLevelItr = askSideMap_.begin();
+            if (frontLevelItr == askSideMap_.end()){
+                addOrder(newOrder);
+                return executionResult;
+            };
+
+            if (frontLevelItr->first > newOrder.price){
+                addOrder(newOrder);
+
+                if (executionResult.quantityFilled == 0){
+                    executionResult.status = ExecutionStatus::Resting;
+                }
+                else{
+                    executionResult.status = ExecutionStatus::PartiallyFilled;
+                }
+                return executionResult;
+            }
+
+            auto fill = frontLevelItr->second.fillFront(newOrder.remainingQuantity);
+            newOrder.remainingQuantity -= fill.quantity;
+            executionResult.quantityRemaining = newOrder.remainingQuantity;
+            executionResult.quantityFilled += fill.quantity;
+
+            Trade trade = {
+                .tradeId = allocateTradeId(),
+                .price = newOrder.price,
+                .quantity = fill.quantity,
+                .restingId = fill.restingOrderId,
+                .aggressorId = newOrder.orderId,
+                .aggressorSide = newOrder.side
+            };
+
+            executionResult.trades.push_back(trade);
+            
+            if (frontLevelItr->second.isEmpty()){
+                frontLevelItr = askSideMap_.erase(frontLevelItr);
+            }
+        } while (newOrder.remainingQuantity > 0);
+    }
+    else{
+        do {
+            auto frontLevelItr = bidSideMap_.begin();
+            if (frontLevelItr == bidSideMap_.end()){
+                addOrder(newOrder);
+                return executionResult;
+            };
+
+            if (frontLevelItr->first < newOrder.price){
+                addOrder(newOrder);
+
+                if (executionResult.quantityFilled == 0){
+                    executionResult.status = ExecutionStatus::Resting;
+                }
+                else{
+                    executionResult.status = ExecutionStatus::PartiallyFilled;
+                }
+                return executionResult;
+            }
+
+            auto fill = frontLevelItr->second.fillFront(newOrder.remainingQuantity);
+            newOrder.remainingQuantity -= fill.quantity;
+            executionResult.quantityRemaining = newOrder.remainingQuantity;
+            executionResult.quantityFilled += fill.quantity;
+
+            Trade trade = {
+                .tradeId = allocateTradeId(),
+                .price = newOrder.price,
+                .quantity = fill.quantity,
+                .restingId = fill.restingOrderId,
+                .aggressorId = newOrder.orderId,
+                .aggressorSide = newOrder.side
+            };
+
+            executionResult.trades.push_back(trade);
+            
+            if (frontLevelItr->second.isEmpty()){
+                frontLevelItr = askSideMap_.erase(frontLevelItr);
+            }
+        } while (newOrder.remainingQuantity > 0);
+    }
+
+    executionResult.status = ExecutionStatus::Filled;
+    executionResult.quantityFilled = newOrder.originalQuantity;
+    return executionResult;
 }
 
 OrderId OrderBook::allocateOrderId(){
     auto ret = nextOrderId_;
     nextOrderId_++;
+    return ret;
+}
+
+TradeId OrderBook::allocateTradeId(){
+    auto ret = nextTradeId_;
+    nextTradeId_++;
     return ret;
 }
 

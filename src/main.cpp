@@ -6,12 +6,12 @@ int main(){
 
     lob::OrderRequest orderOne = {50, 100, lob::Side::Buy};
     lob::OrderRequest orderTwo = {52, 200, lob::Side::Sell};
-    lob::OrderRequest orderThree = {51, 10, lob::Side::Buy};
+    lob::OrderRequest orderThree = {55, 10, lob::Side::Buy};
 
     lob::OrderBook orderBook;
-    orderBook.submit(orderOne);
-    orderBook.submit(orderTwo);
-    orderBook.submit(orderThree);
+    auto ret1 = orderBook.submit(orderOne);
+    auto ret2 = orderBook.submit(orderTwo);
+    auto ret3 = orderBook.submit(orderThree);
 
     auto bestBid = orderBook.bestBid();
     auto bestAsk = orderBook.bestAsk();
@@ -36,6 +36,12 @@ int main(){
     auto fill = testLevel.fillFront(50);
     std::cout << "Fill restingOrderId, price, quantity: " << fill.restingOrderId << ", " << fill.price << ", " << fill.quantity << "\n";
 
+    // Execution results
+    std::cout << "ExecutionResult for ret1: orderId, quantity filled, quantity remaining" << ret1.orderId << ", " << ret1.quantityFilled << ", " << ret1.quantityRemaining << "\n";
+
+    std::cout << "ExecutionResult for ret2: orderId, quantity filled, quantity remaining" << ret2.orderId << ", " << ret2.quantityFilled << ", " << ret2.quantityRemaining << "\n";
+
+    std::cout << "ExecutionResult for ret3: orderId, quantity filled, quantity remaining" << ret3.orderId << ", " << ret3.quantityFilled << ", " << ret3.quantityRemaining << "\n";
     return 0;
 }
 
