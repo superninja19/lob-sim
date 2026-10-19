@@ -46,6 +46,12 @@ void OrderBook::addOrder(LimitOrder order){
     }
 }
 
+void OrderBook::addTrade(Trade trade){
+    assert(trade.quantity > 0 && "trade quantity must be greater than 0");
+    assert(trade.price > 0 && "trade price must be greater than 0");
+    trades_.push_back(trade);
+}
+
 std::optional<Price> OrderBook::bestBid() const{
     if (bidSideMap_.empty()){
         return std::nullopt;
@@ -75,7 +81,6 @@ Quantity OrderBook::askQuantityAt(Price price) const{
 
 }
 
-// Does nothing but add new orders currently
 ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
     LimitOrder newOrder = {
         .orderId = allocateOrderId(),
@@ -92,12 +97,7 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
     if (newOrder.side == Side::Buy){
         do {
             auto frontLevelItr = askSideMap_.begin();
-            if (frontLevelItr == askSideMap_.end()){
-                addOrder(newOrder);
-                return executionResult;
-            };
-
-            if (frontLevelItr->first > newOrder.price){
+            if (frontLevelItr == askSideMap_.end() || frontLevelItr->first > newOrder.price){
                 addOrder(newOrder);
 
                 if (executionResult.quantityFilled == 0){
@@ -116,7 +116,7 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
 
             Trade trade = {
                 .tradeId = allocateTradeId(),
-                .price = newOrder.price,
+                .price = frontLevelItr->first,
                 .quantity = fill.quantity,
                 .restingId = fill.restingOrderId,
                 .aggressorId = newOrder.orderId,
@@ -124,21 +124,17 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
             };
 
             executionResult.trades.push_back(trade);
+            addTrade(trade);
             
             if (frontLevelItr->second.isEmpty()){
-                frontLevelItr = askSideMap_.erase(frontLevelItr);
+                askSideMap_.erase(frontLevelItr);
             }
         } while (newOrder.remainingQuantity > 0);
     }
     else{
         do {
             auto frontLevelItr = bidSideMap_.begin();
-            if (frontLevelItr == bidSideMap_.end()){
-                addOrder(newOrder);
-                return executionResult;
-            };
-
-            if (frontLevelItr->first < newOrder.price){
+            if (frontLevelItr == bidSideMap_.end() || frontLevelItr->first < newOrder.price){
                 addOrder(newOrder);
 
                 if (executionResult.quantityFilled == 0){
@@ -157,7 +153,7 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
 
             Trade trade = {
                 .tradeId = allocateTradeId(),
-                .price = newOrder.price,
+                .price = frontLevelItr->first,
                 .quantity = fill.quantity,
                 .restingId = fill.restingOrderId,
                 .aggressorId = newOrder.orderId,
@@ -165,15 +161,15 @@ ExecutionResult OrderBook::submit(const OrderRequest& orderRequest){
             };
 
             executionResult.trades.push_back(trade);
+            addTrade(trade);
             
             if (frontLevelItr->second.isEmpty()){
-                frontLevelItr = askSideMap_.erase(frontLevelItr);
+                bidSideMap_.erase(frontLevelItr);
             }
         } while (newOrder.remainingQuantity > 0);
     }
 
     executionResult.status = ExecutionStatus::Filled;
-    executionResult.quantityFilled = newOrder.originalQuantity;
     return executionResult;
 }
 

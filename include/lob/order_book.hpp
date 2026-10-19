@@ -36,7 +36,7 @@ public:
     [[nodiscard]] Fill fillFront(Quantity maxQuantity);
 
 private:
-    void addQuantity(Quantity quantity){
+   void addQuantity(Quantity quantity){
         assert(quantity > 0 && "quantity must be greater than 0");
         totalQuantity_ += quantity;
     }
@@ -52,6 +52,7 @@ private:
 
 class OrderBook{
 public:
+    void addTrade(Trade trade);
     std::optional<Price> bestBid() const;
     std::optional<Price> bestAsk() const;
     Quantity bidQuantityAt(Price price) const;
@@ -59,6 +60,7 @@ public:
     ExecutionResult submit(const OrderRequest& orderRequest);
 
 private:
+    std::list<Trade> trades_;
     void addOrder(LimitOrder order);
     OrderId allocateOrderId();
     OrderId nextOrderId_ = 1;
